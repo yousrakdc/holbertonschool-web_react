@@ -11,14 +11,24 @@ module.exports = {
     rules: [
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              esModule: false,
+            },
+          },
+        ],
       },
       {
         test: /\.(png|jpe?g|gif)$/i,
-        type: "javascript/auto",
         use: [
           {
             loader: "file-loader",
+            options: {
+              esModule: false,
+            },
           },
         ],
       },
