@@ -1,4 +1,5 @@
 node_modules/
+node_modules 2/
 task_0/dist/main.js
 task_0/dist/main.js.LICENSE.txt
 task_1/public/bundle.js
