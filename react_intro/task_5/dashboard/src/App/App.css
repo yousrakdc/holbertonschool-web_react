@@ -1,3 +1,18 @@
+html {
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+h1, h2, h3, h4, h5, h6, p, ol, ul {
+  margin: 0;
+  padding: 0;
+}
+
+
 :root {
   --h1-font: montserrat, sans-serif;
   --primary-color: #e1003c;
@@ -19,8 +34,22 @@
   letter-spacing: 1px;
 }
 
-.App-body p{
-  margin: 40px 20px;
+.App-body p {
+  margin: 40px 0 10px 20px;
+}
+
+.App-body form {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 5px;
+  margin-left: 20px;
+  margin-top: 15px;
+  
+}
+
+.App-body input, label[htmlFor="password"] {
+  margin-left: 10px;
 }
 
 .App-footer {
@@ -32,6 +61,7 @@
   border-top: var(--primary-color) 3px solid;
   font-family: var(--h1-font);
   justify-content: center;
+  font-style: italic;
 }
 
 .App-footer p {

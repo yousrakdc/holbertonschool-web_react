@@ -1,5 +1,5 @@
 .notification-items {
-    border: 3px dotted #e1003c;
+    border: 3px dotted red;
     padding: 10px 20px;
     position: relative;
 }
@@ -11,13 +11,12 @@
 .notification-items ul {
     margin-top: 15px;
     margin-left: 25px;
-    color: #e1003c;
 }
 
-li[data-priority="Default"] {
+li[data-priority="default"] {
     color: blue;
 }
 
-li[data-priority="Urgent"] {
-    color: #e1003c;
+li[data-priority="urgent"] {
+    color: red;
 }

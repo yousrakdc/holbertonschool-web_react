@@ -1,6 +1,6 @@
 import './Notifications.css'
-import closeButton from './assets/close-button.png'
-import { getLatestNotification } from '../src/utils'
+import closeButton from '../assets/close-button.png'
+import { getLatestNotification } from '../utils/utils'
 
 function Notifications() {
     const latestNotification = { __html: getLatestNotification() }
@@ -9,9 +9,9 @@ function Notifications() {
             <div className="notification-items">
                 <p>Here is the list of notifications</p>
                 <ul>
-                    <li data-priority="Default">New course available</li>
-                    <li data-priority="Urgent">New resume available</li>
-                    <li dangerouslySetInnerHTML={latestNotification}></li>
+                    <li data-priority="default">New course available</li>
+                    <li data-priority="urgent">New resume available</li>
+                    <li data-priority="urgent" dangerouslySetInnerHTML={latestNotification}></li>
                 </ul>
                 <button style={{
                     position: 'absolute',
