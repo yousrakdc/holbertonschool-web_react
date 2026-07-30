@@ -11,4 +11,11 @@ const getFooterCopy = (isIndex) => {
     }
 }
 
-export { getCurrentYear, getFooterCopy }
+const getLatestNotification = () => {
+    return "<strong>Urgent requirement</strong> - complete by EOD"
+}
+
+export { getCurrentYear,
+         getFooterCopy,
+         getLatestNotification,
+        }
