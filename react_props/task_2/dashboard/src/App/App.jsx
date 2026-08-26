@@ -5,12 +5,18 @@ import holbertonLogo from '../assets/holberton-logo.jpg'
 
 function App() {
 
+  const notificationsList = [
+  { id: 1, type: 'default', value: 'New course available' },
+  { id: 2, type: 'urgent', value: 'New resume available' },
+  { id: 3, type: 'urgent', value: 'Urgent requirement - complete by EOD', html: getLatestNotification() },
+  ];
+
   const currentYear = getCurrentYear()
   const footerCopy = getFooterCopy(false)
   return (
     <>
       <div className="root-notifications">
-        <Notifications />
+        <Notifications notifications={notificationsList} />
       </div>
       <div className="App-header">
         <img className="App-logo" src={holbertonLogo} alt="holberton logo" />
