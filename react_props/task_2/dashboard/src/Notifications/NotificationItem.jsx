@@ -1,4 +1,4 @@
-function NotificationItem ({ type , html , value }) {
+function NotificationItem ({ type = 'default', html , value }) {
     const style = {
         color: type === "urgent" ? "red" : "blue"
     }
