@@ -1,0 +1,46 @@
+import './App.css'
+import Notifications from '../Notifications/Notifications'
+import { getCurrentYear, getFooterCopy, getLatestNotification } from '../utils/utils'
+import holbertonLogo from '../assets/holberton-logo.jpg'
+
+function App() {
+
+  const notificationsList = [
+  { id: 1, type: 'default', value: 'New course available' },
+  { id: 2, type: 'urgent', value: 'New resume available' },
+  { id: 3, type: 'urgent', value: 'Urgent requirement - complete by EOD', html: getLatestNotification() },
+  ];
+
+  const currentYear = getCurrentYear()
+  const footerCopy = getFooterCopy(false)
+  return (
+    <>
+      <div className="root-notifications">
+        <Notifications notifications={notificationsList} />
+      </div>
+      <div className="App-header">
+        <img className="App-logo" src={holbertonLogo} alt="holberton logo" />
+        <h1>School dashboard</h1>
+      </div>
+      <div className="App-body">
+        <p>Login to access the full dashboard</p>
+        <form action="">
+        <label htmlFor="email">
+          Email: 
+          <input type="email" name="email" id="email"/>
+        </label>
+        <label htmlFor="password">
+          Password: 
+          <input type="password" name="password" id="password"/>
+        </label>
+        <button className="label-button" type="submit">OK</button>
+        </form>
+      </div>
+      <div className="App-footer">
+        <p>Copyright {currentYear} {footerCopy}</p>
+      </div>
+    </>
+  )
+}
+
+export default App
