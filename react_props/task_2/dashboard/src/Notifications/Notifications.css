@@ -1,22 +1,9 @@
 .notification-items {
-    border: 3px dotted red;
-    padding: 10px 20px;
-    position: relative;
-}
-
-.notification-items img {
-    width: 10px;
-}
-
-.notification-items ul {
-    margin-top: 15px;
-    margin-left: 25px;
-}
-
-li[data-priority="default"] {
-    color: blue;
-}
-
-li[data-priority="urgent"] {
-    color: red;
-}
+    border: 2px dotted #e1003c;
+    padding-left: 10px;
+  }
+  
+  button img {
+    width: 8px;
+    height: 8px;
+  }
