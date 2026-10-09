@@ -1,4 +1,6 @@
-import "./Login.css";
+/* eslint-disable react-refresh/only-export-components */
+import './Login.css'
+import WithLogging from '../HOC/WithLogging'
 
 function Login() {
   return (
@@ -10,7 +12,7 @@ function Login() {
       <input type="password" id="password" />
       <button>OK</button>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default WithLogging(Login)

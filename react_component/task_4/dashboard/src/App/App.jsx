@@ -8,6 +8,12 @@ import Footer from '../Footer/Footer'
 import BodySection from '../BodySection/BodySection'
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom'
 
+const coursesList = [
+  { id: 1, name: 'ES6', credit: 60 },
+  { id: 2, name: 'Webpack', credit: 20 },
+  { id: 3, name: 'React', credit: 40 },
+]
+
 class App extends Component {
   static defaultProps = {
     isLoggedIn: false,
@@ -40,7 +46,7 @@ class App extends Component {
         <Header />
         {isLoggedIn ? (
           <BodySectionWithMarginBottom title="Course list">
-            <CourseList />
+            <CourseList courses={coursesList} />
           </BodySectionWithMarginBottom>
         ) : (
           <BodySectionWithMarginBottom title="Log in to continue">
