@@ -1,11 +1,16 @@
 import { Component } from 'react'
 import './App.css'
 import Notifications from '../Notifications/Notifications'
-import { getCurrentYear, getFooterCopy } from '../utils/utils'
-import holbertonLogo from '../assets/holberton-logo.jpg'
+import Header from '../Header/Header'
+import Login from '../Login/Login'
+import CourseList from '../CourseList/CourseList'
+import Footer from '../Footer/Footer'
+import BodySection from '../BodySection/BodySection'
+import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom'
 
 class App extends Component {
   static defaultProps = {
+    isLoggedIn: false,
     logOut: () => {},
   }
 
@@ -25,35 +30,27 @@ class App extends Component {
   }
 
   render() {
-    const currentYear = getCurrentYear()
-    const footerCopy = getFooterCopy(false)
+    const { isLoggedIn } = this.props
 
     return (
       <>
         <div className="root-notifications">
           <Notifications />
         </div>
-        <div className="App-header">
-          <img className="App-logo" src={holbertonLogo} alt="holberton logo" />
-          <h1>School dashboard</h1>
-        </div>
-        <div className="App-body">
-          <p>Login to access the full dashboard</p>
-          <form action="">
-            <label htmlFor="email">
-              Email:
-              <input type="email" name="email" id="email" />
-            </label>
-            <label htmlFor="password">
-              Password:
-              <input type="password" name="password" id="password" />
-            </label>
-            <button className="label-button" type="submit">OK</button>
-          </form>
-        </div>
-        <div className="App-footer">
-          <p>Copyright {currentYear} {footerCopy}</p>
-        </div>
+        <Header />
+        {isLoggedIn ? (
+          <BodySectionWithMarginBottom title="Course list">
+            <CourseList />
+          </BodySectionWithMarginBottom>
+        ) : (
+          <BodySectionWithMarginBottom title="Log in to continue">
+            <Login />
+          </BodySectionWithMarginBottom>
+        )}
+        <BodySection title="News from the School">
+          <p>Holberton School News goes here</p>
+        </BodySection>
+        <Footer />
       </>
     )
   }
