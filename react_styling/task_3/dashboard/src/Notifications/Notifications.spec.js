@@ -83,15 +83,15 @@ describe('Notifications component - displayDrawer is true', () => {
 
     expect(items[0]).toHaveTextContent('New course available');
     expect(items[0]).toHaveAttribute('data-notification-type', 'default');
-    expect(items[0]).toHaveStyle({ color: 'blue' });
+    expect(items[0]).toHaveClass('text-[var(--default-notification-item)]');
 
     expect(items[1]).toHaveTextContent('New resume available');
     expect(items[1]).toHaveAttribute('data-notification-type', 'urgent');
-    expect(items[1]).toHaveStyle({ color: 'red' });
+    expect(items[1]).toHaveClass('text-[var(--urgent-notification-item)]');
 
     expect(items[2]).toHaveTextContent('Urgent requirement - complete by EOD');
     expect(items[2]).toHaveAttribute('data-notification-type', 'urgent');
-    expect(items[2]).toHaveStyle({ color: 'red' });
+    expect(items[2]).toHaveClass('text-[var(--urgent-notification-item)]');
 
     const strongElement = items[2].querySelector('strong');
     expect(strongElement).toBeInTheDocument();
