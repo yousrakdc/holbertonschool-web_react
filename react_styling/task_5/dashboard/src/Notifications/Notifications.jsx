@@ -3,6 +3,10 @@ import closeButton from '../assets/close-button.png'
 import NotificationItem from './NotificationItem.jsx'
 
 class Notifications extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   static defaultProps = {
     notifications: [],
     displayDrawer: true
@@ -13,26 +17,21 @@ class Notifications extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    return (
-      this.props.notifications.length !== nextProps.notifications.length ||
-      this.props.displayDrawer !== nextProps.displayDrawer
-    )
+    if (this.props.notifications.length !== nextProps.notifications.length) {
+      return true
+    }
+    return false
   }
 
   render() {
-    const { notifications, displayDrawer } = this.props
-    const shouldBounce = notifications.length > 0 && !displayDrawer
-
     return (
       <div className='root-notifications fixed top-0 right-0 flex flex-col items-end w-[min(600px,25vw)] min-w-[200px] max-[912px]:inset-0 max-[912px]:w-full max-[912px]:min-w-0 max-[912px]:h-full max-[912px]:z-50'>
-        <div
-          className={`notification-title text-right w-full min-w-[200px] max-w-[600px] max-[912px]:max-w-none ${shouldBounce ? 'animate-bounce' : ''}`}
-        >
+        <div className='notification-title text-right w-full min-w-[200px] max-w-[600px] max-[912px]:max-w-none'>
           Your notifications
         </div>
-        { displayDrawer ? (
+        { this.props.displayDrawer ? (
           <>
-            { notifications.length === 0 ? (
+            { this.props.notifications.length === 0 ? (
               <>
                 <div className='notification-items border border-dashed border-[var(--main-color)] w-full min-w-[200px] max-w-[600px] p-[6px] max-[912px]:max-w-none max-[912px]:min-w-0 max-[912px]:p-3 max-[912px]:m-3 max-[912px]:flex-1 max-[912px]:overflow-auto'>
                   <p>no new notification for now</p>
@@ -44,8 +43,8 @@ class Notifications extends Component {
                   <p>Here is the list of notifications</p>
                   <ul className='max-[912px]:list-disc max-[912px]:pl-6 max-[912px]:space-y-3 max-[912px]:mt-2'>
                     {
-                      notifications.map(notification => {
-                        return <NotificationItem
+                      this.props.notifications.map(notification => {
+                        return <NotificationItem 
                           key={notification.id}
                           type={notification.type}
                           value={notification.value}
