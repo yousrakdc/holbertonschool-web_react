@@ -1,4 +1,3 @@
-import WithLogging from '../HOC/WithLogging.jsx'
 import CourseListRow from './CourseListRow.jsx'
 
 function CourseList({ courses = [] }) {
@@ -35,4 +34,4 @@ function CourseList({ courses = [] }) {
   )
 }
 
-export default WithLogging(CourseList)
+export default CourseList
