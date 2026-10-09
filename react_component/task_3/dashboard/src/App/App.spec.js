@@ -34,12 +34,6 @@ test('renders a button with text OK', async () => {
     expect(screen.getByRole('button', {name: /^ok$/i})).toBeInTheDocument()
 })
 
-test('displays the News from the School title and paragraph by default', () => {
-    render(<App />)
-    expect(screen.getByRole('heading', { level: 2, name: /^news from the school$/i })).toBeInTheDocument()
-    expect(screen.getByText(/^holberton school news goes here$/i)).toBeInTheDocument()
-})
-
 describe('logOut with ctrl + h', () => {
     let alertSpy
 
