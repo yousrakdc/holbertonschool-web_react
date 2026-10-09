@@ -1,36 +1,43 @@
-import './App.css';
-import React from 'react';
-import { getLatestNotification } from '../utils/utils.js';
-import Notifications from '../Notifications/Notifications.jsx';
-import Header from '../Header/Header.jsx';
-import Login from '../Login/Login.jsx';
-import Footer from '../Footer/Footer.jsx';
-import CourseList from '../CourseList/CourseList.jsx';
+import { Component } from 'react'
+import './App.css'
+import Notifications from '../Notifications/Notifications'
+import { getCurrentYear, getFooterCopy } from '../utils/utils'
+import holbertonLogo from '../assets/holberton-logo.jpg'
 
-class App extends React.Component {
+class App extends Component {
   render() {
-    const { isLoggedIn = false } = this.props;
-    const notificationsList = [
-      { id: 1, type: 'default', value: 'New course available' },
-      { id: 2, type: 'urgent', value: 'New resume available' },
-      { id: 3, type: 'urgent', html: getLatestNotification() },
-    ];
+    const currentYear = getCurrentYear()
+    const footerCopy = getFooterCopy(false)
 
-    const coursesList = [
-      { id: 1, name: 'ES6', credit: 60 },
-      { id: 2, name: 'Webpack', credit: 20 },
-      { id: 3, name: 'React', credit: 40 },
-    ];
-
-  return (
-    <>
-      <Notifications notifications={notificationsList} />
-      <Header />
-      {isLoggedIn ? <CourseList courses={coursesList} /> : <Login />}
-      <Footer />
-    </>
-  );
+    return (
+      <>
+        <div className="root-notifications">
+          <Notifications />
+        </div>
+        <div className="App-header">
+          <img className="App-logo" src={holbertonLogo} alt="holberton logo" />
+          <h1>School dashboard</h1>
+        </div>
+        <div className="App-body">
+          <p>Login to access the full dashboard</p>
+          <form action="">
+            <label htmlFor="email">
+              Email:
+              <input type="email" name="email" id="email" />
+            </label>
+            <label htmlFor="password">
+              Password:
+              <input type="password" name="password" id="password" />
+            </label>
+            <button className="label-button" type="submit">OK</button>
+          </form>
+        </div>
+        <div className="App-footer">
+          <p>Copyright {currentYear} {footerCopy}</p>
+        </div>
+      </>
+    )
   }
 }
 
-export default App;
+export default App
