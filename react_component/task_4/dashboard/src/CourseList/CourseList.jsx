@@ -1,35 +1,44 @@
-/* eslint-disable react-refresh/only-export-components */
-import CourseListRow from './CourseListRow'
-import WithLogging from '../HOC/WithLogging'
+import CourseListRow from './CourseListRow';
 
 function CourseList({ courses = [] }) {
-  return (
-    <div className="courses">
-      {courses.length > 0 ? (
-        <table id="CourseList">
-          <thead>
-            <CourseListRow textFirstCell="Available courses" isHeader={true} />
-            <CourseListRow textFirstCell="Course name" textSecondCell="Credit" isHeader={true} />
-          </thead>
+  if (courses.length === 0) {
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        <table id="noCourse" className="w-full border border-black text-center font-bold">
           <tbody>
-            {courses.map((course) => (
-              <CourseListRow
-                key={course.id}
-                textFirstCell={course.name}
-                textSecondCell={course.credit}
-              />
-            ))}
+            <CourseListRow
+              textFirstCell="No course available yet"
+              isHeader={false}
+            />
           </tbody>
         </table>
-      ) : (
-        <table id="CourseList">
-          <thead>
-            <CourseListRow textFirstCell="No course available yet" isHeader={true} />
-          </thead>
-        </table>
-      )}
+      </div>
+    );
+  }
+  return (
+    <div className="flex justify-center items-center w-full h-full">
+      <table id="coursesTable" className="w-full border border-black border-collapse">
+        <thead>
+          <CourseListRow textFirstCell="Available courses" isHeader={true} />
+          <CourseListRow
+            textFirstCell="Course name"
+            textSecondCell="Credit"
+            isHeader={true}
+          />
+        </thead>
+        <tbody>
+          {courses.map((course) => (
+            <CourseListRow
+              key={course.id}
+              textFirstCell={course.name}
+              textSecondCell={course.credit}
+              isHeader={false}
+            />
+          ))}
+        </tbody>
+      </table>
     </div>
-  )
+  );
 }
 
-export default WithLogging(CourseList)
+export default CourseList;
