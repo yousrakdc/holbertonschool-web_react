@@ -2,25 +2,22 @@ import { render, screen } from '@testing-library/react';
 import Login from './Login';
 import userEvent from '@testing-library/user-event';
 
-describe('Login component', () => {
+describe('Login component (checker)', () => {
   test('renders without crashing', () => {
     render(<Login />);
-    const loginText = screen.getByText(/login to access the full dashboard/i);
-    expect(loginText).toBeInTheDocument();
+    expect(screen.getByText(/login to access the full dashboard/i)).toBeInTheDocument();
   });
 
   test('should render two inputs for login', () => {
     render(<Login />);
     const inputs = screen.getAllByRole('textbox');
-    const password = screen.getByLabelText(/password/i);
-    expect(password);
+    screen.getByLabelText(/password/i);
     expect(inputs.length + 1).toBe(2);
   });
 
   test('should render two label elements', () => {
     render(<Login />);
-    const labels = screen.getAllByText(/email|password/i);
-    expect(labels).toHaveLength(2);
+    expect(screen.getAllByText(/email|password/i)).toHaveLength(2);
   });
 
   test('should render one button', () => {
@@ -32,11 +29,9 @@ describe('Login component', () => {
     render(<Login />);
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/password/i);
-    const emailLabel = screen.getByText(/email/i);
-    const passwordLabel = screen.getByText(/password/i);
-    await userEvent.click(emailLabel);
+    await userEvent.click(screen.getByText(/email/i));
     expect(emailInput).toHaveFocus();
-    await userEvent.click(passwordLabel);
+    await userEvent.click(screen.getByText(/password/i));
     expect(passwordInput).toHaveFocus();
   });
 });
