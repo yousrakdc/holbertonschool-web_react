@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import './Login.spec.js';
+import './Login.css';
 
 class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: '',
-      password: '',
+      email: props.email || '',
+      password: props.password || '',
       enableSubmit: false,
     };
     this.handleChangeEmail = this.handleChangeEmail.bind(this);
@@ -20,16 +20,25 @@ class Login extends Component {
 
   handleChangeEmail(e) {
     const email = e.target.value;
-    this.setState({ email, enableSubmit: this.isValid(email, this.state.password) });
+    this.setState({
+      email,
+      enableSubmit: this.isValid(email, this.state.password),
+    });
   }
 
   handleChangePassword(e) {
     const password = e.target.value;
-    this.setState({ password, enableSubmit: this.isValid(this.state.email, password) });
+    this.setState({
+      password,
+      enableSubmit: this.isValid(this.state.email, password),
+    });
   }
 
   handleLoginSubmit(e) {
     e.preventDefault();
+    if (this.props.logIn) {
+      this.props.logIn(this.state.email, this.state.password);
+    }
   }
 
   render() {

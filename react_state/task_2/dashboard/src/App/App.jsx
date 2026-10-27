@@ -10,15 +10,17 @@ import BodySectionWithMargin from '../BodySection/BodySectionWithMarginBottom.js
 import BodySection from '../BodySection/BodySection.jsx';
 import newContext from '../Context/context.js';
 
+const defaultUser = {
+  email: '',
+  password: '',
+  isLoggedIn: false,
+};
+
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: {
-        email: '',
-        password: '',
-        isLoggedIn: false,
-      },
+      user: { ...defaultUser },
     };
   }
 
@@ -43,7 +45,7 @@ class App extends React.Component {
 
   logout = () => {
     this.setState({
-      user: { ...this.state.user, isLoggedIn: false },
+      user: { ...defaultUser },
     });
     this.props.logOut();
   };
@@ -63,6 +65,7 @@ class App extends React.Component {
       this.props.isLoggedIn !== undefined
         ? this.props.isLoggedIn
         : this.state.user.isLoggedIn;
+
     const notificationsList = [
       { id: 1, type: 'default', value: 'New course available' },
       { id: 2, type: 'urgent', value: 'New resume available' },
@@ -97,11 +100,10 @@ class App extends React.Component {
             />
           </BodySectionWithMargin>
         )}
-        <Footer />
-        <BodySectionWithMargin />
         <BodySection title="News from the School">
           <p>Holberton School News goes here</p>
         </BodySection>
+        <Footer />
       </newContext.Provider>
     );
   }

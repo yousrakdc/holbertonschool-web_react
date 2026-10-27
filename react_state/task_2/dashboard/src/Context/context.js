@@ -8,7 +8,7 @@ const defaultUser = {
 
 const defaultLogOut = () => {};
 
-const newContext = createContext({
+export const newContext = createContext({
   user: defaultUser,
   logOut: defaultLogOut,
 });
