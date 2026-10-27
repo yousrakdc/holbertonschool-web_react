@@ -1,0 +1,32 @@
+import { expect, test } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import Footer from './Footer.jsx';
+import Context from '../Context/context.js';
+
+const renderWithUser = (user) =>
+  render(
+    <Context.Provider value={{ user, logOut: () => {} }}>
+      <Footer />
+    </Context.Provider>
+  );
+
+test('should render footer with copyright text', () => {
+  render(<Footer />);
+  expect(screen.getByText(/Copyright/i)).toBeInTheDocument();
+});
+
+test('should render footer with current year', () => {
+  render(<Footer />);
+  const currentYear = new Date().getFullYear();
+  expect(screen.getByText(new RegExp(currentYear.toString()))).toBeInTheDocument();
+});
+
+test('does not display the Contact us link when the user is logged out', () => {
+  renderWithUser({ email: '', password: '', isLoggedIn: false });
+  expect(screen.queryByRole('link', { name: /contact us/i })).not.toBeInTheDocument();
+});
+
+test('displays the Contact us link when the user is logged in', () => {
+  renderWithUser({ email: 'test@example.com', password: 'password123', isLoggedIn: true });
+  expect(screen.getByRole('link', { name: /contact us/i })).toBeInTheDocument();
+});
