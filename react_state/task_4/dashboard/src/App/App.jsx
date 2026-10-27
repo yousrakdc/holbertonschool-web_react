@@ -87,11 +87,11 @@ class App extends React.Component {
 
   markNotificationAsRead(id) {
     console.log(`Notification ${id} has been marked as read`);
-    this.setState((prevState) => ({
-      notifications: prevState.notifications.filter(
+    this.setState({
+      notifications: this.state.notifications.filter(
         (notification) => notification.id !== id
       ),
-    }));
+    });
   }
 
   render() {

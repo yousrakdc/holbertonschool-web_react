@@ -1,6 +1,10 @@
 import { PureComponent } from 'react'
 
 class NotificationItem extends PureComponent {
+  constructor(props) {
+    super(props);
+  }
+
   static defaultProps = {
     type: 'default',
     value: '',
@@ -10,6 +14,7 @@ class NotificationItem extends PureComponent {
 
   handleClick = () => {
     const { id, markAsRead } = this.props;
+    console.log(`Notification ${id} has been marked as read`);
     markAsRead(id);
   }
 
