@@ -19,14 +19,14 @@ const defaultUser = {
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.logIn = this.logIn.bind(this);
+    this.logOut = this.logOut.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.state = {
       user: { ...defaultUser },
+      logOut: this.logOut,
     };
   }
-
-  static defaultProps = {
-    logOut: () => {},
-  };
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown);
@@ -36,21 +36,14 @@ class App extends React.Component {
     document.removeEventListener('keydown', this.handleKeyDown);
   }
 
-  handleKeyDown = (event) => {
+  handleKeyDown(event) {
     if (event.ctrlKey && event.key === 'h') {
       alert('Logging you out');
-      this.logout();
+      this.state.logOut();
     }
-  };
+  }
 
-  logout = () => {
-    this.setState({
-      user: { ...defaultUser },
-    });
-    this.props.logOut();
-  };
-
-  logIn = (email, password) => {
+  logIn(email, password) {
     this.setState({
       user: {
         email,
@@ -58,13 +51,16 @@ class App extends React.Component {
         isLoggedIn: true,
       },
     });
-  };
+  }
+
+  logOut() {
+    this.setState({
+      user: { ...defaultUser },
+    });
+  }
 
   render() {
-    const isLoggedIn =
-      this.props.isLoggedIn !== undefined
-        ? this.props.isLoggedIn
-        : this.state.user.isLoggedIn;
+    const { user } = this.state;
 
     const notificationsList = [
       { id: 1, type: 'default', value: 'New course available' },
@@ -78,16 +74,11 @@ class App extends React.Component {
       { id: 3, name: 'React', credit: 40 },
     ];
 
-    const contextValue = {
-      user: this.state.user,
-      logOut: this.logout,
-    };
-
     return (
-      <newContext.Provider value={contextValue}>
+      <newContext.Provider value={this.state}>
         <Notifications notifications={notificationsList} />
         <Header />
-        {isLoggedIn ? (
+        {user.isLoggedIn ? (
           <BodySectionWithMargin title="Course list">
             <CourseList courses={coursesList} />
           </BodySectionWithMargin>
@@ -95,8 +86,8 @@ class App extends React.Component {
           <BodySectionWithMargin title="Log in to continue">
             <Login
               logIn={this.logIn}
-              email={this.state.user.email}
-              password={this.state.user.password}
+              email={user.email}
+              password={user.password}
             />
           </BodySectionWithMargin>
         )}
