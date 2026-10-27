@@ -34,4 +34,13 @@ describe('Login component (checker)', () => {
     await userEvent.click(screen.getByText(/password/i));
     expect(passwordInput).toHaveFocus();
   });
+
+  test('calls logIn with email and password on submit', async () => {
+  const logIn = jest.fn();
+  render(<Login logIn={logIn} />);
+  await userEvent.type(screen.getByLabelText(/email/i), 'test@example.com');
+  await userEvent.type(screen.getByLabelText(/password/i), 'password123');
+  await userEvent.click(screen.getByRole('button', { name: /ok/i }));
+  expect(logIn).toHaveBeenCalledWith('test@example.com', 'password123');
+});
 });

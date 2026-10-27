@@ -4,10 +4,12 @@ import './Login.css';
 class Login extends Component {
   constructor(props) {
     super(props);
+    const email = props.email || '';
+    const password = props.password || '';
     this.state = {
-      email: props.email || '',
-      password: props.password || '',
-      enableSubmit: false,
+      email,
+      password,
+      enableSubmit: this.isValid(email, password),
     };
     this.handleChangeEmail = this.handleChangeEmail.bind(this);
     this.handleChangePassword = this.handleChangePassword.bind(this);
@@ -36,9 +38,7 @@ class Login extends Component {
 
   handleLoginSubmit(e) {
     e.preventDefault();
-    if (this.props.logIn) {
-      this.props.logIn(this.state.email, this.state.password);
-    }
+    this.props.logIn(this.state.email, this.state.password);
   }
 
   render() {
@@ -69,5 +69,11 @@ class Login extends Component {
     );
   }
 }
+
+Login.defaultProps = {
+  email: '',
+  password: '',
+  logIn: () => {},
+};
 
 export default Login;
