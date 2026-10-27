@@ -38,7 +38,7 @@ class App extends React.Component {
     this.handleDisplayDrawer = this.handleDisplayDrawer.bind(this);
     this.handleHideDrawer = this.handleHideDrawer.bind(this);
     this.state = {
-      displayDrawer: false,
+      displayDrawer: true,
       user: { ...defaultUser },
       logOut: this.logOut,
       notifications: notificationsList,
