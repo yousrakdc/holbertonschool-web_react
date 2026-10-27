@@ -1,82 +1,86 @@
-import { expect, test } from '@jest/globals';
-import { render, screen, fireEvent } from '@testing-library/react';
-import App from './App.jsx';
+import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import App from './App.jsx'
 
-test('should render title', () => {
-  render(<App />);
-  expect(
-    screen.getByRole('heading', { name: /School dashboard/i }),
-  ).toHaveTextContent(/School dashboard/i);
-});
+const logInThroughForm = async () => {
+    await userEvent.type(screen.getByLabelText(/^email:$/i), 'test@example.com')
+    await userEvent.type(screen.getByLabelText(/^password:$/i), 'password123')
+    await userEvent.click(screen.getByRole('button', { name: /^ok$/i }))
+}
 
-test('should render two paragraphs', () => {
-  render(<App />);
-  expect(screen.getByText(/Login to access the full dashboard/i));
-  expect(screen.getByText(/Copyright 2026 - holberton School/i));
-});
+test('renders the h1 with text School Dashboard', async () => {
+    render(<App />)
+    expect(screen.getByRole('heading', {level: 1, name: /^school dashboard$/i})).toBeInTheDocument()
+})
 
-test('should render the image', () => {
-  render(<App />);
-  expect(screen.getByAltText(/holberton logo/i)).toBeInTheDocument();
-});
+test('renders login and copyright paragraph with the correct content', async () => {
+    render(<App />)
+    expect(screen.getByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
+    expect(screen.getByText(/^copyright/i)).toBeInTheDocument()
+})
 
-test('should render two inputs for login', () => {
-  render(<App />);
-  const inputs = screen.getAllByRole('textbox');
-  const password = screen.getByLabelText(/password/i);
-  expect(password);
-  expect(inputs.length + 1).toBe(2);
-});
+test('renders an img element', async () => {
+    render(<App />)
+    expect(screen.getByAltText(/^holberton logo$/i)).toBeInTheDocument()
+})
 
-test('should render two label elements', () => {
-  render(<App />);
-  const labels = screen.getAllByText(/email|password/i);
-  expect(labels).toHaveLength(2);
-});
+test('renders email input and password input elements', async () => {
+    render(<App />)
+    expect(screen.getByRole('textbox', {name: /^email:$/i})).toBeInTheDocument()
+    expect(screen.getByLabelText(/^password:$/i)).toBeInTheDocument()
+})
 
-test('should render one button', () => {
-  render(<App />);
-  expect(screen.getByText(/ok/i));
-});
+test('renders Email and Password label element', async () => {
+    render(<App />)
+    expect(screen.getByText(/^email:$/i)).toBeInTheDocument()
+    expect(screen.getByText(/^password:$/i)).toBeInTheDocument()
+})
 
-test('should render the Login form when isLoggedIn is false', () => {
-  render(<App isLoggedIn={false} />);
-  expect(
-    screen.getByText(/Login to access the full dashboard/i),
-  ).toBeInTheDocument();
-  expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-  expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-});
+test('renders a button with text OK', async () => {
+    render(<App />)
+    expect(screen.getByRole('button', {name: /^ok$/i})).toBeInTheDocument()
+})
 
-test('should render a CourseList table when isLoggedIn is true', () => {
-  render(<App isLoggedIn={true} />);
-  expect(screen.getByText(/Available courses/i)).toBeInTheDocument();
-  expect(
-    screen.queryByText(/Login to access the full dashboard/i),
-  ).not.toBeInTheDocument();
-});
+test('displays the News from the School title and paragraph by default', () => {
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 2, name: /^news from the school$/i })).toBeInTheDocument()
+    expect(screen.getByText(/^holberton school news goes here$/i)).toBeInTheDocument()
+})
 
-test('should call logOut when Ctrl+h is pressed', () => {
-  const logOut = jest.fn();
-  render(<App logOut={logOut} />);
-  fireEvent.keyDown(document, { key: 'h', ctrlKey: true });
-  expect(logOut).toHaveBeenCalledTimes(1);
-});
+test('shows the course list after logging in with valid credentials', async () => {
+    render(<App />)
+    await logInThroughForm()
+    expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
+    expect(screen.queryByText(/^login to access the full dashboard$/i)).not.toBeInTheDocument()
+})
 
-test('should call alert with Logging you out when Ctrl+h is pressed', () => {
-  const alert = jest.spyOn(window, 'alert').mockImplementation(() => {});
-  render(<App />);
-  fireEvent.keyDown(document, { key: 'h', ctrlKey: true });
-  expect(alert).toHaveBeenCalledWith('Logging you out');
-  alert.mockRestore();
-});
+describe('logOut with ctrl + h', () => {
+    let alertSpy
 
-test('displays title "News from the School" and paragraph "Holberton School News goes here" by default', () => {
-  render(<App />);
-  expect(
-    screen.getByRole('heading', { name: 'News from the School' }),
-  ).toBeInTheDocument();
-  const paragraph = screen.getByText('Holberton School News goes here');
-  expect(paragraph).toBeInTheDocument();
-  expect(paragraph.tagName).toBe('P');
-});
+    beforeEach(() => {
+        alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {})
+    })
+
+    afterEach(() => {
+        alertSpy.mockRestore()
+    })
+
+    test('logs the user out when ctrl and h are pressed', async () => {
+        render(<App />)
+        await logInThroughForm()
+        expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
+
+        fireEvent.keyDown(document, { key: 'h', ctrlKey: true })
+
+        expect(await screen.findByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
+        expect(screen.queryByRole('heading', { level: 2, name: /^course list$/i })).not.toBeInTheDocument()
+    })
+
+    test('calls alert with "Logging you out" when ctrl and h are pressed', () => {
+        render(<App />)
+
+        fireEvent.keyDown(document, { key: 'h', ctrlKey: true })
+
+        expect(alertSpy).toHaveBeenCalledWith('Logging you out')
+    })
+})

@@ -1,12 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import App from './App.jsx'
-
-const logInThroughForm = async () => {
-    await userEvent.type(screen.getByLabelText(/^email:$/i), 'test@example.com')
-    await userEvent.type(screen.getByLabelText(/^password:$/i), 'password123')
-    await userEvent.click(screen.getByRole('button', { name: /^ok$/i }))
-}
 
 test('renders the h1 with text School Dashboard', async () => {
     render(<App />)
@@ -47,13 +40,6 @@ test('displays the News from the School title and paragraph by default', () => {
     expect(screen.getByText(/^holberton school news goes here$/i)).toBeInTheDocument()
 })
 
-test('shows the course list after logging in with valid credentials', async () => {
-    render(<App />)
-    await logInThroughForm()
-    expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
-    expect(screen.queryByText(/^login to access the full dashboard$/i)).not.toBeInTheDocument()
-})
-
 describe('logOut with ctrl + h', () => {
     let alertSpy
 
@@ -65,15 +51,13 @@ describe('logOut with ctrl + h', () => {
         alertSpy.mockRestore()
     })
 
-    test('logs the user out when ctrl and h are pressed', async () => {
-        render(<App />)
-        await logInThroughForm()
-        expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
+    test('calls logOut once when ctrl and h are pressed', () => {
+        const logOut = jest.fn()
+        render(<App logOut={logOut} />)
 
         fireEvent.keyDown(document, { key: 'h', ctrlKey: true })
 
-        expect(await screen.findByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
-        expect(screen.queryByRole('heading', { level: 2, name: /^course list$/i })).not.toBeInTheDocument()
+        expect(logOut).toHaveBeenCalledTimes(1)
     })
 
     test('calls alert with "Logging you out" when ctrl and h are pressed', () => {
