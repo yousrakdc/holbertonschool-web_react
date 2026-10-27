@@ -102,7 +102,6 @@ describe('markNotificationAsRead', () => {
     test('removes the clicked notification and logs the expected message', async () => {
         render(<App />)
 
-        await userEvent.click(screen.getByText(/your notifications/i))
         expect(screen.getAllByRole('listitem')).toHaveLength(3)
 
         await userEvent.click(screen.getByText(/^new course available$/i))
