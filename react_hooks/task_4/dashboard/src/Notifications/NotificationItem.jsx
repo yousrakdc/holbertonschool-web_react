@@ -1,42 +1,53 @@
-import { PureComponent } from 'react'
+import { memo } from 'react'
 
-class NotificationItem extends PureComponent {
-  static defaultProps = {
-    type: 'default',
-    value: '',
-    html: null,
-    markAsRead: () => {},
+const NotificationItem = memo(function NotificationItem({
+  type,
+  html,
+  value,
+  markAsRead,
+  id,
+}) {
+  const notificationType = type ?? 'default'
+
+  const handleClick = () => {
+    if (markAsRead) {
+      markAsRead(id)
+    }
   }
 
-  handleClick = () => {
-    const { id, markAsRead } = this.props;
-    markAsRead(id);
+  const colorStyle = {
+    color: notificationType === 'urgent' ? 'red' : 'blue',
   }
 
-  render() {
-    const hasHTML = this.props.html && (typeof this.props.html === 'object' || typeof this.props.html === 'string');
+  const className =
+    (notificationType === 'default'
+      ? 'text-[var(--default-notification-item)]'
+      : 'text-[var(--urgent-notification-item)]') +
+    ' text-sm sm:text-base max-[912px]:text-base max-[912px]:py-2 max-[912px]:px-2 max-[912px]:border-b max-[912px]:border-gray-200 max-[912px]:last:border-b-0'
 
-    const colorStyle = {
-      color: this.props.type === 'urgent' ? 'red' : 'blue',
-    };
-
+  if (html) {
+    const markup = typeof html === 'string' ? { __html: html } : html
     return (
       <li
-        data-notification-type={this.props.type}
+        data-notification-type={notificationType}
         style={colorStyle}
-        className={
-          (this.props.type === 'default'
-            ? 'text-[var(--default-notification-item)]'
-            : 'text-[var(--urgent-notification-item)]') +
-          ' text-sm sm:text-base max-[912px]:text-base max-[912px]:py-2 max-[912px]:px-2 max-[912px]:border-b max-[912px]:border-gray-200 max-[912px]:last:border-b-0'
-        }
-        onClick={this.handleClick}
-        {...(hasHTML ? { dangerouslySetInnerHTML: typeof this.props.html === 'object' ? this.props.html : { __html: this.props.html } } : {})}
-      >
-        {!hasHTML ? this.props.value : null}
-      </li>
-    );
+        className={className}
+        onClick={handleClick}
+        dangerouslySetInnerHTML={markup}
+      />
+    )
   }
-}
+
+  return (
+    <li
+      data-notification-type={notificationType}
+      style={colorStyle}
+      className={className}
+      onClick={handleClick}
+    >
+      {value}
+    </li>
+  )
+})
 
 export default NotificationItem
