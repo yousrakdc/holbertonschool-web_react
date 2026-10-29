@@ -1,0 +1,143 @@
+/* global process */
+import React from 'react';
+import axios from 'axios';
+import { getLatestNotification } from '../utils/utils.js';
+import Notifications from '../Notifications/Notifications.jsx';
+import Header from '../Header/Header.jsx';
+import Login from '../Login/Login.jsx';
+import Footer from '../Footer/Footer.jsx';
+import CourseList from '../CourseList/CourseList.jsx';
+import BodySectionWithMargin from '../BodySection/BodySectionWithMarginBottom.jsx';
+import BodySection from '../BodySection/BodySection.jsx';
+import Context from '../Context/context.js';
+
+const API_BASE_URL = 'http://localhost:5173';
+
+const defaultUser = {
+  email: '',
+  password: '',
+  isLoggedIn: false,
+};
+
+const extractList = (data, key) => {
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && Array.isArray(data[key])) {
+    return data[key];
+  }
+  return [];
+};
+
+function App() {
+  const [displayDrawer, setDisplayDrawer] = React.useState(true);
+  const [user, setUser] = React.useState({ ...defaultUser });
+  const [notifications, setNotifications] = React.useState([]);
+  const [courses, setCourses] = React.useState([]);
+
+  // Notifications: fetched once, when the component first renders
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/notifications.json`);
+        const data = extractList(response.data, 'notifications').map((notification) =>
+          notification.html
+            ? { ...notification, html: getLatestNotification() }
+            : notification
+        );
+        if (isMounted) {
+          setNotifications(data);
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching notifications:', error);
+        }
+      }
+    };
+
+    fetchNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Courses: fetched whenever the user state changes
+  React.useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/courses.json`);
+        setCourses(extractList(response.data, 'courses'));
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching courses:', error);
+        }
+      }
+    };
+
+    fetchCourses();
+  }, [user]);
+
+  const logIn = React.useCallback((email, password) => {
+    setUser({
+      email,
+      password,
+      isLoggedIn: true,
+    });
+  }, []);
+
+  const logOut = React.useCallback(() => {
+    setUser({ ...defaultUser });
+  }, []);
+
+  const markNotificationAsRead = React.useCallback((id) => {
+    console.log(`Notification ${id} has been marked as read`);
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
+    );
+  }, []);
+
+  const handleDisplayDrawer = React.useCallback(() => {
+    setDisplayDrawer(true);
+  }, []);
+
+  const handleHideDrawer = React.useCallback(() => {
+    setDisplayDrawer(false);
+  }, []);
+
+  const contextValue = React.useMemo(() => ({ user, logOut }), [user, logOut]);
+
+  return (
+    <Context.Provider value={contextValue}>
+      <Notifications
+        notifications={notifications}
+        displayDrawer={displayDrawer}
+        handleDisplayDrawer={handleDisplayDrawer}
+        handleHideDrawer={handleHideDrawer}
+        markNotificationAsRead={markNotificationAsRead}
+      />
+      <Header />
+      {user.isLoggedIn ? (
+        <BodySectionWithMargin title="Course list">
+          <CourseList courses={courses} />
+        </BodySectionWithMargin>
+      ) : (
+        <BodySectionWithMargin title="Log in to continue">
+          <Login
+            logIn={logIn}
+            email={user.email}
+            password={user.password}
+          />
+        </BodySectionWithMargin>
+      )}
+      <BodySection title="News from the School">
+        <p>Holberton School News goes here</p>
+      </BodySection>
+      <Footer />
+    </Context.Provider>
+  );
+}
+
+export default App;
