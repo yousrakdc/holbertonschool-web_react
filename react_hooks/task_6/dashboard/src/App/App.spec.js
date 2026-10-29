@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import mockAxios from 'jest-mock-axios'
 import App from './App.jsx'
 
-const NOTIFICATIONS_URL = 'http://localhost:5173/notifications.json'
-const COURSES_URL = 'http://localhost:5173/courses.json'
+const NOTIFICATIONS_URL = '/notifications.json'
+const COURSES_URL = '/courses.json'
 
 const notificationsData = [
   { id: 1, type: 'default', value: 'New course available' },

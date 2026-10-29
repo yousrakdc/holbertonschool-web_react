@@ -11,7 +11,7 @@ import BodySectionWithMargin from '../BodySection/BodySectionWithMarginBottom.js
 import BodySection from '../BodySection/BodySection.jsx';
 import { appReducer, initialState, APP_ACTIONS } from './appReducer.js';
 
-const API_BASE_URL = 'http://localhost:5173';
+const API_BASE_URL = '';
 
 const extractList = (data, key) => {
   if (Array.isArray(data)) {
