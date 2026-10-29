@@ -64,12 +64,8 @@ function App() {
     };
   }, []);
 
-  // Courses: fetched when the user state changes and the user is logged in
+  // Courses: fetched whenever the user state changes
   React.useEffect(() => {
-    if (!user.isLoggedIn) {
-      return undefined;
-    }
-
     let isMounted = true;
 
     const fetchCourses = async () => {

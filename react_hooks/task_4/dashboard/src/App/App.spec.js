@@ -27,6 +27,7 @@ const respond = async (url, data) => {
 const renderApp = async () => {
   const utils = render(<App />)
   await respond(NOTIFICATIONS_URL, notificationsData)
+  await respond(COURSES_URL, coursesData)
   return utils
 }
 
@@ -49,6 +50,7 @@ describe('data fetching', () => {
     expect(mockAxios.get).toHaveBeenCalledWith(NOTIFICATIONS_URL)
 
     await respond(NOTIFICATIONS_URL, notificationsData)
+    await respond(COURSES_URL, coursesData)
 
     expect(screen.getAllByRole('listitem')).toHaveLength(3)
     expect(screen.getByText(/^new course available$/i)).toBeInTheDocument()
@@ -60,40 +62,49 @@ describe('data fetching', () => {
     expect(screen.getByText(/no new notification for now/i)).toBeInTheDocument()
   })
 
-  test('does not fetch courses while the user is logged out', async () => {
+  test('fetches courses again whenever the user state changes', async () => {
     await renderApp()
-    expect(countCalls(COURSES_URL)).toBe(0)
-  })
-
-  test('fetches courses when the user logs in', async () => {
-    await renderApp()
-    await logInThroughForm()
-
     expect(countCalls(COURSES_URL)).toBe(1)
+
+    await logInThroughForm()
+    expect(countCalls(COURSES_URL)).toBe(2)
     await respond(COURSES_URL, coursesData)
 
     expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
     expect(screen.getByText('ES6')).toBeInTheDocument()
     expect(screen.getByText('Webpack')).toBeInTheDocument()
     expect(screen.getByText('React')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('link', { name: /logout/i }))
+    expect(countCalls(COURSES_URL)).toBe(3)
+    await respond(COURSES_URL, coursesData)
   })
 
   test('keeps working when the notifications request fails', async () => {
     render(<App />)
     await act(async () => {
-      mockAxios.mockError(new Error('Network error'))
+      mockAxios.mockError(new Error('Network error'), mockAxios.getReqByUrl(NOTIFICATIONS_URL))
     })
+    await respond(COURSES_URL, coursesData)
     expect(screen.getByText(/no new notification for now/i)).toBeInTheDocument()
   })
 
-  test('notifications are not fetched again on login or logout', async () => {
+  test('deleted notifications stay deleted through login and logout', async () => {
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
     await renderApp()
+
+    await userEvent.click(screen.getByText(/^new course available$/i))
+    expect(screen.getAllByRole('listitem')).toHaveLength(2)
+
     await logInThroughForm()
     await respond(COURSES_URL, coursesData)
     await userEvent.click(screen.getByRole('link', { name: /logout/i }))
+    await respond(COURSES_URL, coursesData)
 
     expect(countCalls(NOTIFICATIONS_URL)).toBe(1)
-    expect(screen.getAllByRole('listitem')).toHaveLength(3)
+    expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    expect(screen.queryByText(/^new course available$/i)).not.toBeInTheDocument()
+    logSpy.mockRestore()
   })
 })
 
@@ -172,6 +183,7 @@ describe('logIn and logOut', () => {
     await respond(COURSES_URL, coursesData)
 
     await userEvent.click(screen.getByRole('link', { name: /logout/i }))
+    await respond(COURSES_URL, coursesData)
 
     expect(screen.getByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
     expect(container.querySelector('#logoutSection')).toBeNull()
