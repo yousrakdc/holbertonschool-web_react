@@ -89,11 +89,11 @@ function App() {
   }, []);
 
   const handleDisplayDrawer = React.useCallback(() => {
-    dispatch({ type: APP_ACTIONS.TOGGLE_DRAWER, payload: true });
+    dispatch({ type: APP_ACTIONS.TOGGLE_DRAWER });
   }, []);
 
   const handleHideDrawer = React.useCallback(() => {
-    dispatch({ type: APP_ACTIONS.TOGGLE_DRAWER, payload: false });
+    dispatch({ type: APP_ACTIONS.TOGGLE_DRAWER });
   }, []);
 
   return (
