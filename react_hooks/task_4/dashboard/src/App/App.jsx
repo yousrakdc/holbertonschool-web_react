@@ -66,14 +66,10 @@ function App() {
 
   // Courses: fetched whenever the user state changes
   React.useEffect(() => {
-    let isMounted = true;
-
     const fetchCourses = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/courses.json`);
-        if (isMounted) {
-          setCourses(extractList(response.data, 'courses'));
-        }
+        setCourses(extractList(response.data, 'courses'));
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error fetching courses:', error);
@@ -82,10 +78,6 @@ function App() {
     };
 
     fetchCourses();
-
-    return () => {
-      isMounted = false;
-    };
   }, [user]);
 
   const logIn = React.useCallback((email, password) => {
