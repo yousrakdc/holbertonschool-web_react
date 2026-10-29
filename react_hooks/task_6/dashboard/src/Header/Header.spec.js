@@ -1,7 +1,5 @@
-import { expect, test, jest } from '@jest/globals';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Header from './Header.jsx';
-import Context from '../Context/context.js';
 
 const loggedInUser = {
   email: 'test@example.com',
@@ -19,17 +17,20 @@ test('should render header with title', () => {
   expect(screen.getByRole('heading')).toHaveTextContent(/School dashboard/i);
 });
 
-test('does not render logoutSection with the default context value', () => {
+test('does not render logoutSection when no user is passed', () => {
   const { container } = render(<Header />);
   expect(container.querySelector('#logoutSection')).toBeNull();
 });
 
-test('renders logoutSection when the user is logged in', () => {
+test('does not render logoutSection when the user is logged out', () => {
   const { container } = render(
-    <Context.Provider value={{ user: loggedInUser, logOut: () => {} }}>
-      <Header />
-    </Context.Provider>
+    <Header user={{ email: '', password: '', isLoggedIn: false }} />
   );
+  expect(container.querySelector('#logoutSection')).toBeNull();
+});
+
+test('renders logoutSection when the user is logged in', () => {
+  const { container } = render(<Header user={loggedInUser} logOut={() => {}} />);
   const section = container.querySelector('#logoutSection');
   expect(section).toBeInTheDocument();
   expect(section).toHaveTextContent(/welcome test@example\.com \(logout\)/i);
@@ -37,11 +38,7 @@ test('renders logoutSection when the user is logged in', () => {
 
 test('calls logOut when the logout link is clicked', () => {
   const logOutSpy = jest.fn();
-  render(
-    <Context.Provider value={{ user: loggedInUser, logOut: logOutSpy }}>
-      <Header />
-    </Context.Provider>
-  );
+  render(<Header user={loggedInUser} logOut={logOutSpy} />);
   fireEvent.click(screen.getByRole('link', { name: /logout/i }));
   expect(logOutSpy).toHaveBeenCalledTimes(1);
 });
