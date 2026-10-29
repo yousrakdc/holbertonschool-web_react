@@ -1,11 +1,28 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, act, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import mockAxios from 'jest-mock-axios'
 import App from './App.jsx'
 
-const logInThroughForm = async () => {
-  await userEvent.type(screen.getByLabelText(/^email:?$/i), 'test@example.com')
-  await userEvent.type(screen.getByLabelText(/^password:?$/i), 'password123')
+const NOTIFICATIONS_URL = 'http://localhost:5173/notifications.json'
+const COURSES_URL = 'http://localhost:5173/courses.json'
+
+const respond = async (url, data) => {
+  await act(async () => {
+    mockAxios.mockResponseFor({ url }, { data })
+  })
+}
+
+const countCalls = (url) =>
+  mockAxios.get.mock.calls.filter(([calledUrl]) => calledUrl === url).length
+
+const logIn = async (email = 'test@example.com', password = 'password123') => {
+  await userEvent.type(screen.getByLabelText(/^email:?$/i), email)
+  await userEvent.type(screen.getByLabelText(/^password:?$/i), password)
   await userEvent.click(screen.getByRole('button', { name: /^ok$/i }))
+}
+
+const logOut = async () => {
+  await userEvent.click(screen.getByRole('link', { name: /logout/i }))
 }
 
 let logSpy
@@ -16,6 +33,7 @@ beforeEach(() => {
 
 afterEach(() => {
   logSpy.mockRestore()
+  mockAxios.reset()
 })
 
 test('App is a function component', () => {
@@ -23,38 +41,82 @@ test('App is a function component', () => {
   expect(App.prototype?.isReactComponent).toBeUndefined()
 })
 
-test('renders the h1 with text School Dashboard', () => {
-  render(<App />)
-  expect(screen.getByRole('heading', { level: 1, name: /^school dashboard$/i })).toBeInTheDocument()
+describe('rendering', () => {
+  test('renders the h1 with text School Dashboard', () => {
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 1, name: /^school dashboard$/i })).toBeInTheDocument()
+  })
+
+  test('renders the login form and the footer by default', () => {
+    render(<App />)
+    expect(screen.getByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/^email:?$/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/^password:?$/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^ok$/i })).toBeInTheDocument()
+    expect(screen.getByText(/^copyright/i)).toBeInTheDocument()
+  })
+
+  test('renders the News from the School section', () => {
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 2, name: /^news from the school$/i })).toBeInTheDocument()
+    expect(screen.getByText(/^holberton school news goes here$/i)).toBeInTheDocument()
+  })
 })
 
-test('renders login and copyright paragraph with the correct content', () => {
-  render(<App />)
-  expect(screen.getByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
-  expect(screen.getByText(/^copyright/i)).toBeInTheDocument()
+describe('notifications data', () => {
+  test('renders the 3 initial notifications immediately', () => {
+    render(<App />)
+    expect(screen.getAllByRole('listitem')).toHaveLength(3)
+    expect(screen.getByText(/^new course available$/i)).toBeInTheDocument()
+    expect(screen.getByText(/^new resume available$/i)).toBeInTheDocument()
+    expect(screen.getByText(/urgent requirement/i)).toBeInTheDocument()
+  })
+
+  test('fetches notifications.json once on mount and uses the response', async () => {
+    render(<App />)
+    expect(mockAxios.get).toHaveBeenCalledWith(NOTIFICATIONS_URL)
+
+    await respond(NOTIFICATIONS_URL, {
+      notifications: [
+        { id: 1, type: 'default', value: 'New course available' },
+        { id: 3, type: 'urgent', html: { __html: '' } },
+      ],
+    })
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    expect(screen.getByText(/urgent requirement/i)).toBeInTheDocument()
+    expect(countCalls(NOTIFICATIONS_URL)).toBe(1)
+  })
+
+  test('keeps the initial notifications when the request fails', async () => {
+    render(<App />)
+    await act(async () => {
+      mockAxios.mockError(new Error('Network error'))
+    })
+    expect(screen.getAllByRole('listitem')).toHaveLength(3)
+  })
 })
 
-test('renders an img element', () => {
-  render(<App />)
-  expect(screen.getByAltText(/^holberton logo$/i)).toBeInTheDocument()
-})
+describe('courses data', () => {
+  test('does not fetch courses while logged out', () => {
+    render(<App />)
+    expect(countCalls(COURSES_URL)).toBe(0)
+  })
 
-test('renders email input, password input and a button with text OK', () => {
-  render(<App />)
-  expect(screen.getByLabelText(/^email:?$/i)).toBeInTheDocument()
-  expect(screen.getByLabelText(/^password:?$/i)).toBeInTheDocument()
-  expect(screen.getByRole('button', { name: /^ok$/i })).toBeInTheDocument()
-})
+  test('fetches courses.json when the user logs in', async () => {
+    render(<App />)
+    await logIn()
 
-test('displays the News from the School title and paragraph by default', () => {
-  render(<App />)
-  expect(screen.getByRole('heading', { level: 2, name: /^news from the school$/i })).toBeInTheDocument()
-  expect(screen.getByText(/^holberton school news goes here$/i)).toBeInTheDocument()
-})
+    expect(countCalls(COURSES_URL)).toBe(1)
+    expect(screen.getByText('ES6')).toBeInTheDocument()
 
-test('renders the 3 notifications immediately', () => {
-  render(<App />)
-  expect(screen.getAllByRole('listitem')).toHaveLength(3)
+    await respond(COURSES_URL, {
+      courses: [{ id: 4, name: 'Jest', credit: 10 }],
+    })
+
+    expect(screen.getByText('Jest')).toBeInTheDocument()
+    expect(screen.queryByText('ES6')).not.toBeInTheDocument()
+  })
 })
 
 describe('notifications drawer (handleDisplayDrawer / handleHideDrawer)', () => {
@@ -82,7 +144,7 @@ describe('logIn and logOut', () => {
     const { container } = render(<App />)
     expect(container.querySelector('#logoutSection')).toBeNull()
 
-    await logInThroughForm()
+    await logIn()
 
     expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
     expect(screen.queryByText(/^login to access the full dashboard$/i)).not.toBeInTheDocument()
@@ -92,9 +154,8 @@ describe('logIn and logOut', () => {
 
   test('logOut sets isLoggedIn to false and clears email and password', async () => {
     const { container } = render(<App />)
-    await logInThroughForm()
-
-    await userEvent.click(screen.getByRole('link', { name: /logout/i }))
+    await logIn()
+    await logOut()
 
     expect(screen.getByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
     expect(container.querySelector('#logoutSection')).toBeNull()
@@ -107,7 +168,6 @@ describe('logIn and logOut', () => {
 describe('markNotificationAsRead', () => {
   test('removes the clicked notification and logs the expected message', () => {
     render(<App />)
-
     fireEvent.click(screen.getByText(/^new course available$/i))
 
     expect(logSpy).toHaveBeenCalledWith('Notification 1 has been marked as read')
@@ -119,9 +179,11 @@ describe('markNotificationAsRead', () => {
     render(<App />)
     fireEvent.click(screen.getByText(/^new course available$/i))
 
-    await logInThroughForm()
-    await userEvent.click(screen.getByRole('link', { name: /logout/i }))
+    await logIn()
+    await logOut()
 
     expect(screen.getAllByRole('listitem')).toHaveLength(2)
+    expect(screen.queryByText(/^new course available$/i)).not.toBeInTheDocument()
+    expect(countCalls(NOTIFICATIONS_URL)).toBe(1)
   })
 })
