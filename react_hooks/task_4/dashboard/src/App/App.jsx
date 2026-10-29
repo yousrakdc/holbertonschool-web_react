@@ -55,10 +55,10 @@ function App() {
 
   const markNotificationAsRead = React.useCallback((id) => {
     console.log(`Notification ${id} has been marked as read`);
-    setNotifications(
-      notifications.filter((notification) => notification.id !== id)
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
     );
-  }, [notifications]);
+  }, []);
 
   const contextValue = React.useMemo(() => ({ user, logOut }), [user, logOut]);
 
