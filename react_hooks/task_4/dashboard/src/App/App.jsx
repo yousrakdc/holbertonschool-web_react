@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState, useCallback, useMemo } from 'react';
+import React from 'react';
 import { getLatestNotification } from '../utils/utils.js';
 import Notifications from '../Notifications/Notifications.jsx';
 import Header from '../Header/Header.jsx';
@@ -29,19 +29,19 @@ const coursesList = [
 ];
 
 function App() {
-  const [displayDrawer, setDisplayDrawer] = useState(true);
-  const [user, setUser] = useState({ ...defaultUser });
-  const [notifications, setNotifications] = useState(notificationsList);
+  const [displayDrawer, setDisplayDrawer] = React.useState(true);
+  const [user, setUser] = React.useState({ ...defaultUser });
+  const [notifications, setNotifications] = React.useState(notificationsList);
 
-  const handleDisplayDrawer = useCallback(() => {
+  const handleDisplayDrawer = React.useCallback(() => {
     setDisplayDrawer(true);
   }, []);
 
-  const handleHideDrawer = useCallback(() => {
+  const handleHideDrawer = React.useCallback(() => {
     setDisplayDrawer(false);
   }, []);
 
-  const logIn = useCallback((email, password) => {
+  const logIn = React.useCallback((email, password) => {
     setUser({
       email,
       password,
@@ -49,18 +49,18 @@ function App() {
     });
   }, []);
 
-  const logOut = useCallback(() => {
+  const logOut = React.useCallback(() => {
     setUser({ ...defaultUser });
   }, []);
 
-  const markNotificationAsRead = useCallback((id) => {
+  const markNotificationAsRead = React.useCallback((id) => {
     console.log(`Notification ${id} has been marked as read`);
     setNotifications((prevNotifications) =>
       prevNotifications.filter((notification) => notification.id !== id)
     );
   }, []);
 
-  const contextValue = useMemo(() => ({ user, logOut }), [user, logOut]);
+  const contextValue = React.useMemo(() => ({ user, logOut }), [user, logOut]);
 
   return (
     <Context.Provider value={contextValue}>
