@@ -1,6 +1,4 @@
-/* global process */
-import React from 'react';
-import axios from 'axios';
+import { useCallback, useMemo, useState } from 'react';
 import { getLatestNotification } from '../utils/utils.js';
 import Notifications from '../Notifications/Notifications.jsx';
 import Header from '../Header/Header.jsx';
@@ -11,76 +9,38 @@ import BodySectionWithMargin from '../BodySection/BodySectionWithMarginBottom.js
 import BodySection from '../BodySection/BodySection.jsx';
 import Context from '../Context/context.js';
 
-const API_BASE_URL = 'http://localhost:5173';
-
 const defaultUser = {
   email: '',
   password: '',
   isLoggedIn: false,
 };
 
-const extractList = (data, key) => {
-  if (Array.isArray(data)) {
-    return data;
-  }
-  if (data && Array.isArray(data[key])) {
-    return data[key];
-  }
-  return [];
-};
+const notificationsList = [
+  { id: 1, type: 'default', value: 'New course available' },
+  { id: 2, type: 'urgent', value: 'New resume available' },
+  { id: 3, type: 'urgent', html: getLatestNotification() },
+];
+
+const coursesList = [
+  { id: 1, name: 'ES6', credit: 60 },
+  { id: 2, name: 'Webpack', credit: 20 },
+  { id: 3, name: 'React', credit: 40 },
+];
 
 function App() {
-  const [displayDrawer, setDisplayDrawer] = React.useState(true);
-  const [user, setUser] = React.useState({ ...defaultUser });
-  const [notifications, setNotifications] = React.useState([]);
-  const [courses, setCourses] = React.useState([]);
+  const [displayDrawer, setDisplayDrawer] = useState(true);
+  const [user, setUser] = useState({ ...defaultUser });
+  const [notifications, setNotifications] = useState(notificationsList);
 
-  // Notifications: fetched once, when the component first renders
-  React.useEffect(() => {
-    let isMounted = true;
-
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/notifications.json`);
-        const data = extractList(response.data, 'notifications').map((notification) =>
-          notification.html
-            ? { ...notification, html: getLatestNotification() }
-            : notification
-        );
-        if (isMounted) {
-          setNotifications(data);
-        }
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching notifications:', error);
-        }
-      }
-    };
-
-    fetchNotifications();
-
-    return () => {
-      isMounted = false;
-    };
+  const handleDisplayDrawer = useCallback(() => {
+    setDisplayDrawer(true);
   }, []);
 
-  // Courses: fetched whenever the user state changes
-  React.useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/courses.json`);
-        setCourses(extractList(response.data, 'courses'));
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching courses:', error);
-        }
-      }
-    };
+  const handleHideDrawer = useCallback(() => {
+    setDisplayDrawer(false);
+  }, []);
 
-    fetchCourses();
-  }, [user]);
-
-  const logIn = React.useCallback((email, password) => {
+  const logIn = useCallback((email, password) => {
     setUser({
       email,
       password,
@@ -88,26 +48,18 @@ function App() {
     });
   }, []);
 
-  const logOut = React.useCallback(() => {
+  const logOut = useCallback(() => {
     setUser({ ...defaultUser });
   }, []);
 
-  const markNotificationAsRead = React.useCallback((id) => {
+  const markNotificationAsRead = useCallback((id) => {
     console.log(`Notification ${id} has been marked as read`);
     setNotifications((prevNotifications) =>
       prevNotifications.filter((notification) => notification.id !== id)
     );
   }, []);
 
-  const handleDisplayDrawer = React.useCallback(() => {
-    setDisplayDrawer(true);
-  }, []);
-
-  const handleHideDrawer = React.useCallback(() => {
-    setDisplayDrawer(false);
-  }, []);
-
-  const contextValue = React.useMemo(() => ({ user, logOut }), [user, logOut]);
+  const contextValue = useMemo(() => ({ user, logOut }), [user, logOut]);
 
   return (
     <Context.Provider value={contextValue}>
@@ -121,7 +73,7 @@ function App() {
       <Header />
       {user.isLoggedIn ? (
         <BodySectionWithMargin title="Course list">
-          <CourseList courses={courses} />
+          <CourseList courses={coursesList} />
         </BodySectionWithMargin>
       ) : (
         <BodySectionWithMargin title="Log in to continue">
