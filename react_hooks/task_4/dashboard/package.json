@@ -42,10 +42,12 @@
   "jest": {
     "testEnvironment": "jsdom",
     "moduleNameMapper": {
-      "^axios$": "jest-mock-axios"
+      "^axios$": "jest-mock-axios",
+      "\\.(css|less|scss)$": "<rootDir>/__mocks__/styleMock.js",
+      "\\.(jpg|jpeg|png|gif|svg)$": "<rootDir>/__mocks__/fileMock.js"
     },
-      "setupFilesAfterEnv": [
-        "./setupTests.js"
-      ]
-    }
+    "setupFilesAfterEnv": [
+      "./setupTests.js"
+    ]
   }
+}

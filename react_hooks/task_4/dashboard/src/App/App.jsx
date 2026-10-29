@@ -1,3 +1,4 @@
+/* global process */
 import './App.css';
 import React from 'react';
 import axios from 'axios';
@@ -39,7 +40,9 @@ function App() {
           setNotifications(data);
         }
       } catch (error) {
-        console.error('Error fetching notifications:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching notifications:', error);
+        }
       }
     };
 
@@ -61,7 +64,9 @@ function App() {
           setCourses(response.data);
         }
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching courses:', error);
+        }
       }
     };
 
