@@ -12,6 +12,8 @@ import BodySectionWithMargin from '../BodySection/BodySectionWithMarginBottom.js
 import BodySection from '../BodySection/BodySection.jsx';
 import Context from '../Context/context.js';
 
+const API_BASE_URL = 'http://localhost:5173';
+
 const defaultUser = {
   email: '',
   password: '',
@@ -30,7 +32,7 @@ function App() {
 
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('notifications.json');
+        const response = await axios.get(`${API_BASE_URL}/notifications.json`);
         const data = response.data.map((notification) =>
           notification.html
             ? { ...notification, html: getLatestNotification() }
@@ -53,13 +55,17 @@ function App() {
     };
   }, []);
 
-  // Courses: fetched again every time the user state changes
+  // Courses: fetched when the user state changes and the user is logged in
   React.useEffect(() => {
+    if (!user.isLoggedIn) {
+      return undefined;
+    }
+
     let isMounted = true;
 
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('courses.json');
+        const response = await axios.get(`${API_BASE_URL}/courses.json`);
         if (isMounted) {
           setCourses(response.data);
         }

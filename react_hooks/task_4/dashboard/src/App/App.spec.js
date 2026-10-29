@@ -3,6 +3,9 @@ import userEvent from '@testing-library/user-event'
 import mockAxios from 'jest-mock-axios'
 import App from './App.jsx'
 
+const NOTIFICATIONS_URL = 'http://localhost:5173/notifications.json'
+const COURSES_URL = 'http://localhost:5173/courses.json'
+
 const notificationsData = [
   { id: 1, type: 'default', value: 'New course available' },
   { id: 2, type: 'urgent', value: 'New resume available' },
@@ -23,8 +26,7 @@ const respond = async (url, data) => {
 
 const renderApp = async () => {
   const utils = render(<App />)
-  await respond('notifications.json', notificationsData)
-  await respond('courses.json', coursesData)
+  await respond(NOTIFICATIONS_URL, notificationsData)
   return utils
 }
 
@@ -34,6 +36,9 @@ const logInThroughForm = async () => {
   await userEvent.click(screen.getByRole('button', { name: /^ok$/i }))
 }
 
+const countCalls = (url) =>
+  mockAxios.get.mock.calls.filter(([calledUrl]) => calledUrl === url).length
+
 afterEach(() => {
   mockAxios.reset()
 })
@@ -41,9 +46,9 @@ afterEach(() => {
 describe('data fetching', () => {
   test('fetches notifications when the App loads', async () => {
     render(<App />)
-    expect(mockAxios.get).toHaveBeenCalledWith('notifications.json')
+    expect(mockAxios.get).toHaveBeenCalledWith(NOTIFICATIONS_URL)
 
-    await respond('notifications.json', notificationsData)
+    await respond(NOTIFICATIONS_URL, notificationsData)
 
     expect(screen.getAllByRole('listitem')).toHaveLength(3)
     expect(screen.getByText(/^new course available$/i)).toBeInTheDocument()
@@ -55,17 +60,17 @@ describe('data fetching', () => {
     expect(screen.getByText(/no new notification for now/i)).toBeInTheDocument()
   })
 
-  test('fetches courses again when the user state changes', async () => {
+  test('does not fetch courses while the user is logged out', async () => {
     await renderApp()
-    const coursesCalls = () =>
-      mockAxios.get.mock.calls.filter(([url]) => url === 'courses.json').length
+    expect(countCalls(COURSES_URL)).toBe(0)
+  })
 
-    expect(coursesCalls()).toBe(1)
-
+  test('fetches courses when the user logs in', async () => {
+    await renderApp()
     await logInThroughForm()
-    expect(coursesCalls()).toBe(2)
 
-    await respond('courses.json', coursesData)
+    expect(countCalls(COURSES_URL)).toBe(1)
+    await respond(COURSES_URL, coursesData)
 
     expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
     expect(screen.getByText('ES6')).toBeInTheDocument()
@@ -79,6 +84,16 @@ describe('data fetching', () => {
       mockAxios.mockError(new Error('Network error'))
     })
     expect(screen.getByText(/no new notification for now/i)).toBeInTheDocument()
+  })
+
+  test('notifications are not fetched again on login or logout', async () => {
+    await renderApp()
+    await logInThroughForm()
+    await respond(COURSES_URL, coursesData)
+    await userEvent.click(screen.getByRole('link', { name: /logout/i }))
+
+    expect(countCalls(NOTIFICATIONS_URL)).toBe(1)
+    expect(screen.getAllByRole('listitem')).toHaveLength(3)
   })
 })
 
@@ -143,7 +158,7 @@ describe('logIn and logOut', () => {
     expect(container.querySelector('#logoutSection')).toBeNull()
 
     await logInThroughForm()
-    await respond('courses.json', coursesData)
+    await respond(COURSES_URL, coursesData)
 
     expect(screen.getByRole('heading', { level: 2, name: /^course list$/i })).toBeInTheDocument()
     expect(screen.queryByText(/^login to access the full dashboard$/i)).not.toBeInTheDocument()
@@ -154,10 +169,9 @@ describe('logIn and logOut', () => {
   test('logOut sets isLoggedIn to false and clears email and password', async () => {
     const { container } = await renderApp()
     await logInThroughForm()
-    await respond('courses.json', coursesData)
+    await respond(COURSES_URL, coursesData)
 
     await userEvent.click(screen.getByRole('link', { name: /logout/i }))
-    await respond('courses.json', coursesData)
 
     expect(screen.getByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
     expect(container.querySelector('#logoutSection')).toBeNull()
