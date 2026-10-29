@@ -46,7 +46,7 @@ class Login extends Component {
       <div className="App-body">
         <p>Login to access the full dashboard</p>
         <form onSubmit={this.handleLoginSubmit}>
-          <label htmlFor="email">Email:</label>
+          <label htmlFor="email">Email</label>
           <input
             type="email"
             id="email"
@@ -54,7 +54,7 @@ class Login extends Component {
             value={email}
             onChange={this.handleChangeEmail}
           />
-          <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
