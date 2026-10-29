@@ -33,15 +33,7 @@ function App() {
   const [user, setUser] = React.useState({ ...defaultUser });
   const [notifications, setNotifications] = React.useState(notificationsList);
 
-  const handleDisplayDrawer = React.useCallback(() => {
-    setDisplayDrawer(true);
-  }, []);
-
-  const handleHideDrawer = React.useCallback(() => {
-    setDisplayDrawer(false);
-  }, []);
-
-  const logIn = React.useCallback((email, password) => {
+    const logIn = React.useCallback((email, password) => {
     setUser({
       email,
       password,
@@ -55,10 +47,18 @@ function App() {
 
   const markNotificationAsRead = React.useCallback((id) => {
     console.log(`Notification ${id} has been marked as read`);
-    setNotifications(
-      notifications.filter((notification) => notification.id !== id)
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((notification) => notification.id !== id)
     );
-  }, [notifications]);
+  }, []);
+
+  const handleDisplayDrawer = React.useCallback(() => {
+    setDisplayDrawer(true);
+  }, []);
+
+  const handleHideDrawer = React.useCallback(() => {
+    setDisplayDrawer(false);
+  }, []);
 
   const contextValue = React.useMemo(() => ({ user, logOut }), [user, logOut]);
 
