@@ -1,6 +1,16 @@
 import { render, screen } from '@testing-library/react';
-import Login from './Login';
 import userEvent from '@testing-library/user-event';
+import Login from './Login';
+
+let logSpy;
+
+beforeEach(() => {
+  logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  logSpy.mockRestore();
+});
 
 describe('Login component (checker)', () => {
   test('renders without crashing', () => {
@@ -33,5 +43,10 @@ describe('Login component (checker)', () => {
     expect(emailInput).toHaveFocus();
     await userEvent.click(screen.getByText(/password/i));
     expect(passwordInput).toHaveFocus();
+  });
+
+  test('logs when the form mounts', () => {
+    render(<Login />);
+    expect(logSpy).toHaveBeenCalledWith('Component Login is mounted');
   });
 });

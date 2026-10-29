@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import WithLogging from '../HOC/WithLogging.jsx';
 
 class Login extends Component {
   constructor(props) {
@@ -75,4 +76,6 @@ Login.defaultProps = {
   logIn: () => {},
 };
 
-export default Login;
+const LoginWithLogging = WithLogging(Login);
+
+export default LoginWithLogging;
