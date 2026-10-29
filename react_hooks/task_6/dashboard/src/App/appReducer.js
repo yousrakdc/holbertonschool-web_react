@@ -34,6 +34,7 @@ export function appReducer(state = initialState, action) {
       return {
         ...state,
         user: { ...initialState.user },
+        courses: [],
       };
 
     case APP_ACTIONS.TOGGLE_DRAWER:
