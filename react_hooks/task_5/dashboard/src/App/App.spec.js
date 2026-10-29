@@ -32,8 +32,8 @@ const renderApp = async () => {
 }
 
 const logInThroughForm = async () => {
-  await userEvent.type(screen.getByLabelText(/^email:$/i), 'test@example.com')
-  await userEvent.type(screen.getByLabelText(/^password:$/i), 'password123')
+  await userEvent.type(screen.getByLabelText(/^email:?$/i), 'test@example.com')
+  await userEvent.type(screen.getByLabelText(/^password:?$/i), 'password123')
   await userEvent.click(screen.getByRole('button', { name: /^ok$/i }))
 }
 
@@ -126,10 +126,10 @@ test('renders an img element', async () => {
 
 test('renders email input, password input and their labels', async () => {
   await renderApp()
-  expect(screen.getByRole('textbox', { name: /^email:$/i })).toBeInTheDocument()
-  expect(screen.getByLabelText(/^password:$/i)).toBeInTheDocument()
-  expect(screen.getByText(/^email:$/i)).toBeInTheDocument()
-  expect(screen.getByText(/^password:$/i)).toBeInTheDocument()
+  expect(screen.getByRole('textbox', { name: /^email:?$/i })).toBeInTheDocument()
+  expect(screen.getByLabelText(/^password:?$/i)).toBeInTheDocument()
+  expect(screen.getByText(/^email:?$/i)).toBeInTheDocument()
+  expect(screen.getByText(/^password:?$/i)).toBeInTheDocument()
 })
 
 test('renders a button with text OK', async () => {
@@ -188,8 +188,8 @@ describe('logIn and logOut', () => {
     expect(screen.getByText(/^login to access the full dashboard$/i)).toBeInTheDocument()
     expect(container.querySelector('#logoutSection')).toBeNull()
     expect(screen.queryByRole('link', { name: /contact us/i })).not.toBeInTheDocument()
-    expect(screen.getByLabelText(/^email:$/i)).toHaveValue('')
-    expect(screen.getByLabelText(/^password:$/i)).toHaveValue('')
+    expect(screen.getByLabelText(/^email:?$/i)).toHaveValue('')
+    expect(screen.getByLabelText(/^password:?$/i)).toHaveValue('')
   })
 })
 

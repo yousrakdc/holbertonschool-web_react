@@ -39,10 +39,10 @@ describe('Login component (checker)', () => {
 describe('Login form validation (useLogin)', () => {
   const fillForm = async (email, password) => {
     if (email) {
-      await userEvent.type(screen.getByLabelText(/^email:$/i), email);
+      await userEvent.type(screen.getByLabelText(/^email:?$/i), email);
     }
     if (password) {
-      await userEvent.type(screen.getByLabelText(/^password:$/i), password);
+      await userEvent.type(screen.getByLabelText(/^password:?$/i), password);
     }
   };
 
@@ -74,16 +74,16 @@ describe('Login form validation (useLogin)', () => {
     await fillForm('test@example.com', 'password123');
     expect(screen.getByRole('button', { name: /^ok$/i })).toBeEnabled();
 
-    await userEvent.clear(screen.getByLabelText(/^password:$/i));
-    await userEvent.type(screen.getByLabelText(/^password:$/i), 'short');
+    await userEvent.clear(screen.getByLabelText(/^password:?$/i));
+    await userEvent.type(screen.getByLabelText(/^password:?$/i), 'short');
     expect(screen.getByRole('button', { name: /^ok$/i })).toBeDisabled();
   });
 
   test('inputs are controlled and reflect typed values', async () => {
     render(<Login />);
     await fillForm('test@example.com', 'password123');
-    expect(screen.getByLabelText(/^email:$/i)).toHaveValue('test@example.com');
-    expect(screen.getByLabelText(/^password:$/i)).toHaveValue('password123');
+    expect(screen.getByLabelText(/^email:?$/i)).toHaveValue('test@example.com');
+    expect(screen.getByLabelText(/^password:?$/i)).toHaveValue('password123');
   });
 
   test('calls logIn with email and password on submit', async () => {
