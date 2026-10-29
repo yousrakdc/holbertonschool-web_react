@@ -55,13 +55,13 @@ describe('notifications drawer (handleDisplayDrawer / handleHideDrawer)', () => 
 
     test('handleHideDrawer hides the drawer when the close button is clicked', async () => {
         render(<App />)
-        await userEvent.click(screen.getByRole('button', { name: /close/i }))
+        await userEvent.click(await userEvent.click(screen.getByLabelText(/close/i)))
         expect(screen.queryByText(/here is the list of notifications/i)).not.toBeInTheDocument()
     })
 
     test('handleDisplayDrawer shows the drawer again when the menu item is clicked', async () => {
         render(<App />)
-        await userEvent.click(screen.getByRole('button', { name: /close/i }))
+        await userEvent.click(await userEvent.click(screen.getByLabelText(/close/i)))
         expect(screen.queryByText(/here is the list of notifications/i)).not.toBeInTheDocument()
 
         await userEvent.click(screen.getByText(/your notifications/i))
