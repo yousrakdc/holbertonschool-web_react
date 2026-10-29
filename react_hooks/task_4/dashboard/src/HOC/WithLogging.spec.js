@@ -22,8 +22,8 @@ describe('WithLogging HOC', () => {
   })
 
   afterEach(() => {
-    consoleSpy.mockRestore()
     cleanup()
+    consoleSpy.mockRestore()
   })
 
   test('renders a heading with the text Hello from Mock App Component', () => {
