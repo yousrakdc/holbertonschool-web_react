@@ -9,23 +9,16 @@ import Footer from '../Footer/Footer.jsx';
 import CourseList from '../CourseList/CourseList.jsx';
 import BodySectionWithMargin from '../BodySection/BodySectionWithMarginBottom.jsx';
 import BodySection from '../BodySection/BodySection.jsx';
-import Context, { user as contextUser } from '../Context/context.js';
+import Context from '../Context/context.js';
 
 const API_BASE_URL = 'http://localhost:5173';
 
-const notificationsList = [
-  { id: 1, type: 'default', value: 'New course available' },
-  { id: 2, type: 'urgent', value: 'New resume available' },
-  { id: 3, type: 'urgent', html: { __html: getLatestNotification() } },
-];
+const defaultUser = {
+  email: '',
+  password: '',
+  isLoggedIn: false,
+};
 
-const coursesList = [
-  { id: 1, name: 'ES6', credit: 60 },
-  { id: 2, name: 'Webpack', credit: 20 },
-  { id: 3, name: 'React', credit: 40 },
-];
-
-// Accepts { notifications: [...] } as well as a plain array
 const extractList = (data, key) => {
   if (Array.isArray(data)) {
     return data;
@@ -33,31 +26,29 @@ const extractList = (data, key) => {
   if (data && Array.isArray(data[key])) {
     return data[key];
   }
-  return null;
+  return [];
 };
-
-// The JSON cannot hold the computed HTML of the latest notification
-const withLatestNotification = (notification) =>
-  notification.html && !notification.html.__html
-    ? { ...notification, html: { __html: getLatestNotification() } }
-    : notification;
 
 function App() {
   const [displayDrawer, setDisplayDrawer] = React.useState(true);
-  const [user, setUser] = React.useState(contextUser);
-  const [notifications, setNotifications] = React.useState(notificationsList);
-  const [courses, setCourses] = React.useState(coursesList);
+  const [user, setUser] = React.useState({ ...defaultUser });
+  const [notifications, setNotifications] = React.useState([]);
+  const [courses, setCourses] = React.useState([]);
 
-  // Notifications: fetched once on mount, replace the initial list on success
+  // Notifications: fetched once, when the component first renders
   React.useEffect(() => {
     let isMounted = true;
 
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/notifications.json`);
-        const list = extractList(response.data, 'notifications');
-        if (isMounted && list) {
-          setNotifications(list.map(withLatestNotification));
+        const data = extractList(response.data, 'notifications').map((notification) =>
+          notification.html
+            ? { ...notification, html: getLatestNotification() }
+            : notification
+        );
+        if (isMounted) {
+          setNotifications(data);
         }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
@@ -73,21 +64,12 @@ function App() {
     };
   }, []);
 
-  // Courses: fetched each time the user logs in
+  // Courses: fetched whenever the user state changes
   React.useEffect(() => {
-    if (!user.isLoggedIn) {
-      return undefined;
-    }
-
-    let isMounted = true;
-
     const fetchCourses = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/courses.json`);
-        const list = extractList(response.data, 'courses');
-        if (isMounted && list) {
-          setCourses(list);
-        }
+        setCourses(extractList(response.data, 'courses'));
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
           console.error('Error fetching courses:', error);
@@ -96,26 +78,18 @@ function App() {
     };
 
     fetchCourses();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user.isLoggedIn]);
-
-  const handleDisplayDrawer = React.useCallback(() => {
-    setDisplayDrawer(true);
-  }, []);
-
-  const handleHideDrawer = React.useCallback(() => {
-    setDisplayDrawer(false);
-  }, []);
+  }, [user]);
 
   const logIn = React.useCallback((email, password) => {
-    setUser({ email, password, isLoggedIn: true });
+    setUser({
+      email,
+      password,
+      isLoggedIn: true,
+    });
   }, []);
 
   const logOut = React.useCallback(() => {
-    setUser(contextUser);
+    setUser({ ...defaultUser });
   }, []);
 
   const markNotificationAsRead = React.useCallback((id) => {
@@ -123,6 +97,14 @@ function App() {
     setNotifications((prevNotifications) =>
       prevNotifications.filter((notification) => notification.id !== id)
     );
+  }, []);
+
+  const handleDisplayDrawer = React.useCallback(() => {
+    setDisplayDrawer(true);
+  }, []);
+
+  const handleHideDrawer = React.useCallback(() => {
+    setDisplayDrawer(false);
   }, []);
 
   const contextValue = React.useMemo(() => ({ user, logOut }), [user, logOut]);
