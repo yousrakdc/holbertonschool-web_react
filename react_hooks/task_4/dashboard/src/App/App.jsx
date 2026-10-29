@@ -1,5 +1,4 @@
 /* global process */
-import './App.css';
 import React from 'react';
 import axios from 'axios';
 import { getLatestNotification } from '../utils/utils.js';

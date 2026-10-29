@@ -1,6 +1,5 @@
 import { PureComponent } from 'react';
 import closeButton from '../assets/close-button.png';
-import './Notifications.css';
 import NotificationItem from './NotificationItem.jsx';
 
 class Notifications extends PureComponent {
