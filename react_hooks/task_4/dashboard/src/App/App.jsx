@@ -1,5 +1,6 @@
 import './App.css';
 import React from 'react';
+import axios from 'axios';
 import { getLatestNotification } from '../utils/utils.js';
 import Notifications from '../Notifications/Notifications.jsx';
 import Header from '../Header/Header.jsx';
@@ -16,24 +17,62 @@ const defaultUser = {
   isLoggedIn: false,
 };
 
-const notificationsList = [
-  { id: 1, type: 'default', value: 'New course available' },
-  { id: 2, type: 'urgent', value: 'New resume available' },
-  { id: 3, type: 'urgent', html: getLatestNotification() },
-];
-
-const coursesList = [
-  { id: 1, name: 'ES6', credit: 60 },
-  { id: 2, name: 'Webpack', credit: 20 },
-  { id: 3, name: 'React', credit: 40 },
-];
-
 function App() {
   const [displayDrawer, setDisplayDrawer] = React.useState(true);
   const [user, setUser] = React.useState({ ...defaultUser });
-  const [notifications, setNotifications] = React.useState(notificationsList);
+  const [notifications, setNotifications] = React.useState([]);
+  const [courses, setCourses] = React.useState([]);
 
-    const logIn = React.useCallback((email, password) => {
+  // Notifications: fetched once, when the component first renders
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('notifications.json');
+        const data = response.data.map((notification) =>
+          notification.html
+            ? { ...notification, html: getLatestNotification() }
+            : notification
+        );
+        if (isMounted) {
+          setNotifications(data);
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Courses: fetched again every time the user state changes
+  React.useEffect(() => {
+    let isMounted = true;
+
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get('courses.json');
+        if (isMounted) {
+          setCourses(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchCourses();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  const logIn = React.useCallback((email, password) => {
     setUser({
       email,
       password,
@@ -74,7 +113,7 @@ function App() {
       <Header />
       {user.isLoggedIn ? (
         <BodySectionWithMargin title="Course list">
-          <CourseList courses={coursesList} />
+          <CourseList courses={courses} />
         </BodySectionWithMargin>
       ) : (
         <BodySectionWithMargin title="Log in to continue">
