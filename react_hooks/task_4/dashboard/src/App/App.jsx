@@ -19,6 +19,16 @@ const defaultUser = {
   isLoggedIn: false,
 };
 
+const extractList = (data, key) => {
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && Array.isArray(data[key])) {
+    return data[key];
+  }
+  return [];
+};
+
 function App() {
   const [displayDrawer, setDisplayDrawer] = React.useState(true);
   const [user, setUser] = React.useState({ ...defaultUser });
@@ -32,7 +42,7 @@ function App() {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/notifications.json`);
-        const data = response.data.map((notification) =>
+        const data = extractList(response.data, 'notifications').map((notification) =>
           notification.html
             ? { ...notification, html: getLatestNotification() }
             : notification
@@ -66,7 +76,7 @@ function App() {
       try {
         const response = await axios.get(`${API_BASE_URL}/courses.json`);
         if (isMounted) {
-          setCourses(response.data);
+          setCourses(extractList(response.data, 'courses'));
         }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
