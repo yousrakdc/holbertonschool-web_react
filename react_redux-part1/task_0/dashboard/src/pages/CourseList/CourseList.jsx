@@ -1,4 +1,4 @@
-import CourseListRow from './CourseListRow.jsx'
+import CourseListRow from './CourseListRow/CourseListRow';
 
 function CourseList({ courses = [] }) {
   return (

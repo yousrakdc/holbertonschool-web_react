@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import NotificationItem from '../Notifications/NotificationItem'
+import NotificationItem from './NotificationItem'
 
 test('calls markAsRead with the right id when clicked', () => {
   const markAsRead = jest.fn();

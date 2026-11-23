@@ -1,4 +1,4 @@
-import { getCurrentYear, getFooterCopy } from '../utils/utils.js';
+import { getCurrentYear, getFooterCopy } from '../../utils/utils.js';
 
 const defaultUser = { email: '', password: '', isLoggedIn: false };
 

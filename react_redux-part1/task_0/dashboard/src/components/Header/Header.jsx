@@ -1,4 +1,4 @@
-import holbertonLogo from '../assets/holberton-logo.jpg';
+import holbertonLogo from '../../assets/holberton-logo.jpg';
 
 const defaultUser = { email: '', password: '', isLoggedIn: false };
 const noop = () => {};

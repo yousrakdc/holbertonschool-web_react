@@ -1,11 +1,11 @@
 import { render, fireEvent, screen, cleanup } from '@testing-library/react';
 import Notifications from './Notifications.jsx';
-import NotificationItem from './NotificationItem.jsx';
-import { getLatestNotification } from '../utils/utils.js';
+import NotificationItem from '../NotificationItem/NotificationItem.jsx';
+import { getLatestNotification } from '../../utils/utils.js';
 
-jest.mock('./NotificationItem.jsx', () => {
+jest.mock('../NotificationItem/NotificationItem.jsx', () => {
   const { createElement } = jest.requireActual('react');
-  const ActualNotificationItem = jest.requireActual('./NotificationItem.jsx').default;
+  const ActualNotificationItem = jest.requireActual('../NotificationItem/NotificationItem.jsx').default;
   return {
     __esModule: true,
     default: jest.fn((props) => createElement(ActualNotificationItem, props)),

@@ -1,7 +1,7 @@
 import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import mockAxios from 'jest-mock-axios'
-import App from './App.jsx'
+import App from '../App.jsx'
 
 const NOTIFICATIONS_URL = '/notifications.json'
 const COURSES_URL = '/courses.json'
