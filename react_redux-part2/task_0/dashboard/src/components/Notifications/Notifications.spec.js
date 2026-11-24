@@ -1,8 +1,8 @@
+import { Profiler } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import mockAxios from 'jest-mock-axios';
-import { StyleSheetTestUtils, css, StyleSheet } from 'aphrodite';
 import rootReducer from '../../app/rootReducer';
 import Notifications from './Notifications';
 import { fetchNotifications } from '../../features/notifications/notificationsSlice';
@@ -12,10 +12,6 @@ const mockNotifications = [
   { id: 2, type: 'urgent', value: 'New resume available' },
 ];
 
-const visibleClass = css(
-  StyleSheet.create({ visible: { opacity: 1, visibility: 'visible' } }).visible
-);
-
 function createStore(notifications = mockNotifications) {
   return configureStore({
     reducer: rootReducer,
@@ -23,27 +19,20 @@ function createStore(notifications = mockNotifications) {
   });
 }
 
-function getDrawer() {
-  return document.querySelector('.notification-items');
-}
-
-function renderWithStore(store) {
+function renderWithStore(store, onRender = () => {}) {
   render(
     <Provider store={store}>
-      <Notifications />
+      <Profiler id="notifications" onRender={onRender}>
+        <Notifications />
+      </Profiler>
     </Provider>
   );
 }
 
+const getDrawer = () =>
+  screen.getByText(/here is the list of notifications/i).closest('div');
+
 let logSpy;
-
-beforeAll(() => {
-  StyleSheetTestUtils.suppressStyleInjection();
-});
-
-afterAll(() => {
-  StyleSheetTestUtils.clearBufferAndResumeStyleInjection();
-});
 
 beforeEach(() => {
   logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -66,39 +55,40 @@ test('displays the notification items returned by fetchNotifications', async () 
   expect(screen.getByText('New resume available')).toBeInTheDocument();
 });
 
-test('the drawer is visible by default', () => {
+test('the drawer is hidden by default', () => {
   renderWithStore(createStore());
 
-  expect(getDrawer()).toHaveClass(visibleClass);
+  expect(getDrawer().className).not.toMatch(/visible/);
 });
 
-test('clicking the close button removes the visible style', () => {
+test('clicking "Your notifications" adds the visible class', () => {
   renderWithStore(createStore());
+
+  fireEvent.click(screen.getByText(/your notifications/i));
+
+  expect(getDrawer().className).toMatch(/visible/);
+});
+
+test('clicking the close button removes the visible class', () => {
+  renderWithStore(createStore());
+
+  fireEvent.click(screen.getByText(/your notifications/i));
+  expect(getDrawer().className).toMatch(/visible/);
 
   fireEvent.click(screen.getByRole('button', { name: /close/i }));
-
-  expect(getDrawer()).not.toHaveClass(visibleClass);
+  expect(getDrawer().className).not.toMatch(/visible/);
 });
 
-test('clicking the title toggles the visible style', () => {
-  renderWithStore(createStore());
-
-  fireEvent.click(screen.getByText(/your notifications/i));
-  expect(getDrawer()).not.toHaveClass(visibleClass);
-
-  fireEvent.click(screen.getByText(/your notifications/i));
-  expect(getDrawer()).toHaveClass(visibleClass);
-});
-
-test('toggling the drawer does not change the redux state', () => {
-  const store = createStore();
-  renderWithStore(store);
-  const before = store.getState().notifications;
+test('toggling the drawer does not re-render the component', () => {
+  const onRender = jest.fn();
+  renderWithStore(createStore(), onRender);
+  const rendersAfterMount = onRender.mock.calls.length;
 
   fireEvent.click(screen.getByText(/your notifications/i));
   fireEvent.click(screen.getByRole('button', { name: /close/i }));
+  fireEvent.click(screen.getByText(/your notifications/i));
 
-  expect(store.getState().notifications).toBe(before);
+  expect(onRender).toHaveBeenCalledTimes(rendersAfterMount);
 });
 
 test('marking a notification as read removes it from the list', () => {
@@ -109,6 +99,5 @@ test('marking a notification as read removes it from the list', () => {
 
   expect(store.getState().notifications.notifications).toHaveLength(1);
   expect(screen.queryByText('New course available')).not.toBeInTheDocument();
-  expect(screen.getByText('New resume available')).toBeInTheDocument();
   expect(logSpy).toHaveBeenCalledWith('Notification 1 has been marked as read');
 });

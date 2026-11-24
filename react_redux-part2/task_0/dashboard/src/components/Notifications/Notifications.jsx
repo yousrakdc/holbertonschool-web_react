@@ -42,7 +42,7 @@ const Notifications = memo(function Notifications() {
       </div>
       <div
         ref={DrawerRef}
-        className={`notification-items ${css(styles.notificationItems)} ${css(styles.visible)}`}
+        className={`notification-items ${css(styles.notificationItems)}`}
       >
         {notifications.length === 0 ? (
           <p>No new notification for now</p>
