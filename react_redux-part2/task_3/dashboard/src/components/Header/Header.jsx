@@ -21,7 +21,7 @@ function Header() {
           className="h-[250px] w-[250px] max-[520px]:h-[150px] max-[520px]:w-[150px]"
         />
         <h1 className="flex items-center text-[var(--main-color)] max-[520px]:text-lg sm:text-xl md:text-2xl">
-          School dashboard
+          School Dashboard
         </h1>
       </header>
       {isLoggedIn && (

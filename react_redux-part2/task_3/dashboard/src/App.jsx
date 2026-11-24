@@ -38,7 +38,7 @@ function App() {
         </BodySectionWithMargin>
       )}
       <BodySection title="News from the School">
-        <p>Holberton School News goes here</p>
+        <p>Holberton School news goes here</p>
       </BodySection>
       <Footer />
     </>

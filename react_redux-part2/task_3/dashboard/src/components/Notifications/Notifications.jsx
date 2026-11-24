@@ -71,7 +71,7 @@ const Notifications = memo(function Notifications() {
               </button>
             </p>
             {filteredNotifications.length === 0 ? (
-              <p>No new notification for now</p>
+              <p>No new notifications for now</p>
             ) : (
               <ul>
                 {filteredNotifications.map((notif) => (
